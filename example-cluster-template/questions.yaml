@@ -1,0 +1,339 @@
+questions:
+- variable: cluster.name
+  default: arz-cluster-generic
+  description: "Specify the name of the cluster"
+  label: "Cluster Name"
+  required: true
+  type: string
+  group: "General"
+- variable: cloudCredentialSecretName
+  default:
+  description: "CloudCredentialName for provisioning cluster"
+  label: "CloudCredential Name"
+  type: cloudcredential
+  group: "General"
+- variable: cloudProvider
+  default: harvester
+  description: "Specify Infrastructure provider for underlying nodes"
+  label: "Infrastructure Provider"
+  type: enum
+  required: true
+  options:
+  - harvester
+  - custom
+  group: "General"
+- variable: kubernetesVersion
+  default: v1.25.10+rke2r1
+  description: "Specify Kubernetes version"
+  label: "Kubernetes Version"
+  type: enum
+  required: true
+  options:
+  - v1.27.2+rke2r1
+  - v1.26.4+rke2r1
+  - v1.25.10+rke2r1
+  - v1.24.14+rke2r1
+  group: "General"
+- variable: enableNetworkPolicy
+  default: true
+  label: enableNetworkPolicy
+  type: boolean
+  group: "General"
+- variable: rkeConfig.localClusterAuthEndpoint.enabled
+  default: false
+  label: "Local Auth endpoint"
+  description: "Enable local auth access endpoint"
+  type: boolean
+  group: "Auth Access Endpoint"
+  show_subquestion_if: true
+  subquestions:
+  - variable: rkeConfig.localClusterAuthEndpoint.fqdn
+    default:
+    description: "Local auth access endpoint FQDN"
+    label: "Auth Endpoint FQDN"
+    type: hostname
+    group: "Auth Access Endpoint"
+  - variable: rkeConfig.localClusterAuthEndpoint.caCerts
+    default:
+    label: "Auth Endpoint Cacerts"
+    description: "Local auth access endpoint CACerts"
+    type: multiline
+    group: "Auth Access Endpoint"
+
+
+### (Default) Nodepool 0
+- variable: nodepools.0.name
+  default:
+  description: "Specify nodepool name"
+  type: string
+  label: "Nodepool name"
+  required: true
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.etcd
+  default: true
+  label: etcd
+  type: boolean
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.controlplane
+  label: controlplane
+  default: true
+  type: boolean
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.worker
+  default: true
+  label: worker
+  type: boolean
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.quantity
+  default: 1
+  description: "Specify node count"
+  type: int
+  required: true
+  label: "Node count"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.diskSize
+  label: "Disk Size"
+  default: 40
+  type: string
+  description: "Size of virtual hard disk in GB"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.diskBus
+  label: "Disk Bus Type"
+  default: string
+  type: virtio
+  description: "harvester disk type"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.cpuCount
+  label: "CPUs"
+  default: 2
+  type: string
+  description: "number of CPUs for your VM"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.memorySize
+  label: "Memory Size"
+  default: 4
+  type: string
+  description: "Memory for VM in GB (available RAM)"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.networkName
+  label: "Network"
+  default: default/network-name-1
+  type: string
+  description: "Name of vlan network in harvester"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.imageName
+  label: "Name of Image"
+  default: default/image-rand
+  type: string
+  description: "Name of image in harvester"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.vmNamespace
+  label: "vm Namespace"
+  default: default
+  type: string
+  description: "namespace to deploy the VM to"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+- variable: nodepools.0.sshUser
+  label: "SSH User"
+  default: ubuntu
+  type: string
+  description: "SSH username"
+  group: "Nodepool 0 (default)"
+  show_if: cloudProvider=harvester
+
+# Nodepool 1
+- variable: nodepools.1.name
+  default:
+  description: "Specify nodepool name"
+  type: string
+  label: "Nodepool name"
+  required: true
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.etcd
+  default: true
+  label: etcd
+  type: boolean
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.controlplane
+  label: controlplane
+  default: true
+  type: boolean
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.worker
+  default: true
+  label: worker
+  type: boolean
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.quantity
+  default: 1
+  description: "Specify node count"
+  type: int
+  required: true
+  label: "Node count"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.diskSize
+  label: "Disk Size"
+  default: 40
+  type: string
+  description: "Size of virtual hard disk in GB"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.diskBus
+  label: "Disk Bus Type"
+  default: string
+  type: virtio
+  description: "harvester disk type"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.cpuCount
+  label: "CPUs"
+  default: 2
+  type: string
+  description: "number of CPUs for your VM"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.memorySize
+  label: "Memory Size"
+  default: 4
+  type: string
+  description: "Memory for VM in GB (available RAM)"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.networkName
+  label: "Network"
+  default: default/network-name-1
+  type: string
+  description: "Name of vlan network in harvester"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.imageName
+  label: "Name of Image"
+  default: default/image-rand
+  type: string
+  description: "Name of image in harvester"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.vmNamespace
+  label: "vm Namespace"
+  default: default
+  type: string
+  description: "namespace to deploy the VM to"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+- variable: nodepools.1.sshUser
+  label: "SSH User"
+  default: ubuntu
+  type: string
+  description: "SSH username"
+  group: "Nodepool 1"
+  show_if: cloudProvider=harvester
+
+
+# Nodepool 2
+- variable: nodepools.2.name
+  default:
+  description: "Specify nodepool name"
+  type: string
+  label: "Nodepool name"
+  required: true
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.etcd
+  default: true
+  label: etcd
+  type: boolean
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.controlplane
+  label: controlplane
+  default: true
+  type: boolean
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.worker
+  default: true
+  label: worker
+  type: boolean
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.quantity
+  default: 1
+  description: "Specify node count"
+  type: int
+  required: true
+  label: "Node count"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.diskSize
+  label: "Disk Size"
+  default: 40
+  type: string
+  description: "Size of virtual hard disk in GB"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.diskBus
+  label: "Disk Bus Type"
+  default: string
+  type: virtio
+  description: "harvester disk type"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.cpuCount
+  label: "CPUs"
+  default: 2
+  type: string
+  description: "number of CPUs for your VM"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.memorySize
+  label: "Memory Size"
+  default: 4
+  type: string
+  description: "Memory for VM in GB (available RAM)"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.networkName
+  label: "Network"
+  default: default/network-name-1
+  type: string
+  description: "Name of vlan network in harvester"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.imageName
+  label: "Name of Image"
+  default: default/image-rand
+  type: string
+  description: "Name of image in harvester"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.vmNamespace
+  label: "vm Namespace"
+  default: default
+  type: string
+  description: "namespace to deploy the VM to"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester
+- variable: nodepools.2.sshUser
+  label: "SSH User"
+  default: ubuntu
+  type: string
+  description: "SSH username"
+  group: "Nodepool 2"
+  show_if: cloudProvider=harvester

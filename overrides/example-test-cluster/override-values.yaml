@@ -1,0 +1,8 @@
+cluster:
+  name: example-test-cluster
+userData: "USERDATABASE64STRING"
+rkeConfig:
+  chartValues:
+    harvester-cloud-provider:
+      cloudConfigPath: "/etc/kubernetes/cloud-config"
+

@@ -1,0 +1,8 @@
+apiVersion: v1
+name: arz-cluster-template
+description: generic cluster template for ARZ Haan AG Kubernetes clusters
+version: 0.9.3
+icon: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaYelsTGm6yTBDfYN0Ud7-7xL_dmDEc6fpD-ROwaq1b3afGI5Uj8NnqjvuK56aCf1k-Bw
+annotations:
+  catalog.cattle.io/type: cluster-template
+  catalog.cattle.io/namespace: fleet-default

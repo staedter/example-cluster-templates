@@ -1,0 +1,38 @@
+{{ $cluster := .Values.cluster }}
+{{ $userdata := .Values.userData }}
+{{- if eq .Values.cloudProvider "harvester" }}
+{{- range $index, $nodepool := .Values.nodepools }}
+apiVersion: rke-machine-config.cattle.io/v1
+kind: HarvesterConfig
+metadata:
+  name: {{ $cluster.name }}-{{ $nodepool.name }}
+  namespace: fleet-default
+diskSize: {{ $nodepool.diskSize | quote }}
+diskBus: {{ $nodepool.diskBus }}
+cpuCount: {{ $nodepool.cpuCount | quote }}
+memorySize: {{ $nodepool.memorySize | quote }}
+networkName: {{ $nodepool.networkName }}
+imageName: {{ $nodepool.imageName }}
+vmNamespace: {{ $nodepool.vmNamespace }}
+sshUser: {{ $nodepool.sshUser }}
+userData: {{ $userdata }}
+---
+{{- end }}
+{{ $nodepool := .Values.nodepool }}
+{{- if $nodepool }}
+apiVersion: rke-machine-config.cattle.io/v1
+kind: HarvesterConfig
+metadata:
+  name: {{ $cluster.name }}-{{ $nodepool.name }}
+  namespace: fleet-default
+diskSize: {{ $nodepool.diskSize | quote }}
+diskBus: {{ $nodepool.diskBus }}
+cpuCount: {{ $nodepool.cpuCount | quote }}
+memorySize: {{ $nodepool.memorySize | quote }}
+networkName: {{ $nodepool.networkName }}
+imageName: {{ $nodepool.imageName }}
+vmNamespace: {{ $nodepool.vmNamespace }}
+sshUser: {{ $nodepool.sshUser }}
+userData: {{ $userdata }}
+{{- end }}
+{{- end }}

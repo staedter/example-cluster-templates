@@ -1,0 +1,163 @@
+## Kubernetes Version for the rke2-guest cluster. New versions can break the template
+## Best also use version matrix to determine latest 
+## supported version of Harvester Node Driver Supported K8S Versions
+## https://www.suse.com/suse-harvester/support-matrix/all-supported-versions/harvester-v1-2-0/
+kubernetesVersion: "v1.26.8+rke2r1"
+
+cloudProvider: harvester
+
+## Cloud provider credentials to communicate with Harvester cluster
+## Needs to be setup in advance
+cloudCredentialSecretName: cattle-global-data:cc-secretname
+
+## [WORKAROUND for BUG https://github.com/harvester/harvester/issues/4568]
+## Determines cloud-init template for the rke2-guest-cluster nodes and 
+## populates the needed cloud-provider-config to enable guest VMs to interact with Harvester.
+## Use customized tools/generate_addon_arz.sh to create userData-Base64-string.
+## Copy from userdata/namespace/userdata-template.b64 file
+## See README.md for mor information
+userData: "USERDATABASE64STRING"
+
+cluster:
+  ## Cluster Name and prefix for all nodepool VMs
+  name: cluster-default
+  ## Specify cluster labels
+  ## these are used for gitops/fleet to target certain bundles to the right clusters 
+  ## [TODO: develop and document the common labels and name schemes]
+  labels:
+    company.tld.de/clustertemplate: "example-cluster-template"
+
+  # specify cluster annotations
+  annotations: {}
+
+## enable Project Network Isolation
+enableNetworkPolicy: false
+
+rkeConfig:
+  chartValues:
+    harvester-cloud-provider:
+      cloudConfigPath: "/var/lib/rancher/rke2/etc/config-files/cloud-provider-config"
+    rke2-ingress-nginx:
+      controller:
+        service:
+          enabled: true
+          type: LoadBalancer
+        extraArgs:
+          default-ssl-certificate: "kube-system/company-wildcard-default-tls"
+  machineSelectorConfig:
+    - config:
+        cloud-provider-name: harvester
+        # cloud-provider-config: |
+        ## Not needed anymore, because the cloud-provider-config is now populated 
+        ## using Values.userData write_files either in the default or override values.
+        ## If that workaround should somehow break, this would be the place to paste
+        ## the cloud-provider-config output from the generate_addon_arz.sh
+  machineGlobalConfig:
+    cni: canal
+  registries:
+    mirrors:
+      docker:
+        endpoint:
+          - "https://harbor.company.tld"
+        rewrite:
+          (.*)/(.*): "dockerhub-proxy/$1/$2"
+          (.*): "dockerhub-proxy/library/$1"
+      quay.io:
+        endpoint:
+          - "https://harbor.company.tld"
+        rewrite:
+          "(.*)": "quayio-proxy/$1"
+      gcr.io:
+        endpoint:
+          - "https://harbor.company.tld"
+        rewrite:
+          "(.*)": "gcr-proxy/$1"
+      ghcr.io:
+        endpoint:
+          - "https://harbor.company.tld"
+        rewrite:
+          "(.*)": "ghcr-proxy/$1"
+    configs:
+      ## Private Registry secret. Needs to be setup in advance for each private Registry
+      harbor.company.tld:
+        authConfigSecretName: harbor-auth-secret     
+        insecureSkipVerify: true
+  localClusterAuthEndpoint:
+    enabled: false
+  upgradeStrategy:
+    controlPlaneDrainOptions:
+      enabled: true
+      deleteEmptyDirData: true
+      disableEviction: false
+      gracePeriod: 30
+      ignoreErrors: false
+      skipWaitForDeleteTimeoutSeconds: 0
+      timeout: 90
+    workerDrainOptions:
+      enabled: true
+      deleteEmptyDirData: true
+      disableEviction: false
+      gracePeriod: -1
+      ignoreErrors: false
+      skipWaitForDeleteTimeoutSeconds: 0
+      timeout: 30
+    workerConcurrency: "2"
+
+## Specify nodepool options. Can add multiple node groups, specify etcd, controlplane and worker roles.
+## Default Settings. Should be set in the override-values.yaml for each new rke2-guest cluster
+nodepools:
+# Nodepool 0
+- etcd: true
+  controlplane: true
+  worker: false
+  unhealthyNodeTimeout: 600s
+  # specify node labels
+  labels:
+    devops.company.tld/pool: "master"
+  # specify node taints
+  taints: []
+  #   - effect: NoSchedule
+  #     key: node-role.kubernetes.io/control-plane
+  #   - effect: NoSchedule
+  #     key: node-role.kubernetes.io/etcd
+  # specify nodepool size
+  quantity: 3
+  rollingUpdate:
+    maxUnavailable: "30%"
+    maxSurge: "50%"
+  name: master
+  displayName: master
+  diskSize: 40
+  diskBus: virtio
+  cpuCount: 4
+  memorySize: 8
+  networkName: networks/net1
+  imageName: images/image-hash
+  vmNamespace: devops
+  sshUser: ubuntu
+  
+# Nodepool 1
+- etcd: false
+  controlplane: false
+  worker: true
+  unhealthyNodeTimeout: 600s
+  # specify node labels
+  labels:
+    devops.company.tld/pool: "worker"
+  # specify node taints
+  taints: {}
+  # specify nodepool size
+  quantity: 1
+  rollingUpdate:
+    maxUnavailable: "30%"
+    maxSurge: "50%"
+  name: worker
+  displayName: worker
+  diskSize: 40
+  diskBus: virtio
+  cpuCount: 4
+  memorySize: 8
+  networkName: networks/net1
+  imageName: images/image-hash
+  vmNamespace: devops
+  sshUser: ubuntu

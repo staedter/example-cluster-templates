@@ -1,0 +1,124 @@
+{{ $cluster := .Values.cluster }}
+apiVersion: provisioning.cattle.io/v1
+kind: Cluster
+metadata:
+  {{- if .Values.cluster.labels }}
+  labels:
+{{ toYaml .Values.cluster.labels | indent 4 }}
+  {{- end }}
+  {{- if .Values.cluster.annotations }}
+  annotations:
+{{ toYaml .Values.cluster.annotations | indent 4 }}
+  {{- end }}
+  name: {{ .Values.cluster.name }}
+  namespace: fleet-default
+spec:
+  {{- if .Values.cloudCredentialSecretName }}
+  cloudCredentialSecretName: {{ .Values.cloudCredentialSecretName }}
+  {{- end }}
+  {{- if .Values.kubernetesVersion }}
+  kubernetesVersion: {{ .Values.kubernetesVersion }}
+  {{- end }}
+  {{- if .Values.rkeConfig.localClusterAuthEndpoint.enabled }}
+  localClusterAuthEndpoint:
+    enabled: {{ .Values.rkeConfig.localClusterAuthEndpoint.enabled }}
+    fqdn: {{ .Values.rkeConfig.localClusterAuthEndpoint.fqdn }}
+    caCerts: {{ .Values.rkeConfig.localClusterAuthEndpoint.caCerts }}
+  {{- end }}
+  # enable project network isolation network policy
+  enableNetworkPolicy: {{ .Values.enableNetworkPolicy }}
+  # specify rancher helm chart values deployed into downstream cluster
+  rkeConfig:
+    {{- if .Values.rkeConfig.chartValues }}
+    chartValues:
+{{ toYaml .Values.rkeConfig.chartValues | indent 6 }}
+    {{- end }}
+    {{- if ne .Values.cloudProvider "custom" }}
+    machinePools:
+    {{- if .Values.nodepools }} {{ range $index, $nodepool := .Values.nodepools }}
+    - controlPlaneRole: {{ $nodepool.controlplane }}
+      etcdRole: {{ $nodepool.etcd }}
+      workerRole: {{ $nodepool.worker }}
+      quantity: {{ $nodepool.quantity }}
+      unhealthyNodeTimeout: {{ default "600s" $nodepool.unhealthyNodeTimeout }}
+      name: {{ $nodepool.name }}
+      machineConfigRef:
+        kind: HarvesterConfig
+        name: {{ $cluster.name }}-{{ $nodepool.name }}
+      paused: {{ $nodepool.paused }}
+      displayName: {{ $nodepool.displayName }}
+      {{- if $nodepool.rollingUpdate }}
+      rollingUpdate:
+        maxUnavailable: {{ $nodepool.rollingUpdate.maxUnavailable }}
+        maxSurge: {{ $nodepool.rollingUpdate.maxSurge }}
+      {{- end }}
+      {{- if $nodepool.machineDeploymentLabels }}
+      machineDeploymentLabels:
+{{ toYaml $nodepool.machineDeploymentLabels | indent 8 }}
+      {{- end }}
+      {{- if $nodepool.machineDeploymentAnnotations }}
+      machineDeploymentAnnotations:
+{{ toYaml $nodepool.machineDeploymentAnnotations | indent 8 }}
+      {{- end }}
+      {{- if $nodepool.labels }}
+      labels:
+{{ toYaml $nodepool.labels | indent 8 }}
+      {{- end }}
+      {{- if $nodepool.taints }}
+      taints:
+{{ toYaml $nodepool.taints | indent 8 }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.nodepool }}
+    {{ $nodepool := .Values.nodepool }}
+    - controlPlaneRole: {{ $nodepool.controlplane }}
+      etcdRole: {{ $nodepool.etcd }}
+      workerRole: {{ $nodepool.worker }}
+      quantity: {{ $nodepool.quantity }}
+      unhealthyNodeTimeout: {{ default "600s" $nodepool.unhealthyNodeTimeout }}
+      name: {{ $nodepool.name }}
+      machineConfigRef:
+        kind: HarvesterConfig
+        name: {{ $cluster.name }}-{{ $nodepool.name }}}
+      paused: {{ $nodepool.paused }}
+      displayName: {{ $nodepool.displayName }}
+      {{- if $nodepool.rollingUpdate }}
+      rollingUpdate:
+        maxUnavailable: {{ $nodepool.rollingUpdate.maxUnavailable }}
+        maxSurge: {{ $nodepool.rollingUpdate.maxSurge }}
+      {{- end }}
+      {{- if $nodepool.machineDeploymentLabels }}
+      machineDeploymentLabels:
+{{ toYaml $nodepool.machineDeploymentLabels | indent 8 }}
+      {{- end }}
+      {{- if $nodepool.machineDeploymentAnnotations }}
+      machineDeploymentAnnotations:
+{{ toYaml $nodepool.machineDeploymentAnnotations | indent 8 }}
+      {{- end }}
+      {{- if $nodepool.labels }}
+      labels:
+{{ toYaml $nodepool.labels | indent 8 }}
+      {{- end }}
+      {{- if $nodepool.taints }}
+      taints:
+{{ toYaml $nodepool.taints | indent 8 }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.rkeConfig.machineGlobalConfig }}
+    machineGlobalConfig:
+{{ toYaml .Values.rkeConfig.machineGlobalConfig | indent 6 }}
+    {{- end }}
+    {{- if .Values.rkeConfig.machineSelectorConfig }}
+    machineSelectorConfig:
+{{ toYaml .Values.rkeConfig.machineSelectorConfig | indent 6 }}
+    {{- end }}
+    {{- if .Values.rkeConfig.registries }}
+    registries:
+{{ toYaml .Values.rkeConfig.registries | indent 6 }}
+    {{- end }}
+{{- if .Values.agentEnvs }}
+  agentEnvVars:
+{{ toYaml .Values.agentEnvs | indent 4 }}
+{{- end }}
