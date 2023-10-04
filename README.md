@@ -40,3 +40,4 @@ For this use the modified script ./tools/generate_addon_arz.sh and copy the resu
 1. export KUBECONFIG=~/.kube/harvester02-admin.yaml
 2. `./tools/generate_addon_arz.sh cloud-provider-config devops RKE2`# example-cluster-templates
 # example-cluster-templates
+# example-cluster-templates
